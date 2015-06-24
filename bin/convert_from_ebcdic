@@ -12,11 +12,11 @@ copybook_filename = ARGV[0]
 input_ebcdic_filename = ARGV[1]
 output_ascii_filename = ARGV[2]
 
-converted_copybook = RecordConvert.copybook_to_xml "settext.cpy"
-if converted_copybook[:status].exitstatus != 0
+converted_copybook = CopybookUtils.copybook_to_xml "settext.cpy"
+if converted_copybook[:process_status].exitstatus != 0
     puts "Failed to properly parse copybook. Output from cb2xml is:"
     puts "converted_copybook[:error_out]"
-    Process::exit converted_copybook[:status].exitstatus
+    Process::exit converted_copybook[:process_status].exitstatus
 end
 
-RecordConvert.to_ascii converted_copybook[:xml], input_ebcdic_filename, output_ascii_filename
+CopybookUtils.to_ascii converted_copybook[:xml], input_ebcdic_filename, output_ascii_filename

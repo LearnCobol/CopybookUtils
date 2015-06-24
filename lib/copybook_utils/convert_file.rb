@@ -8,7 +8,7 @@ module CopybookUtils
             @conversion_method = conversion_method
             @record_fields = []
             flatten_xml 0, 0, doc.root.children
-            record_length = @record_fields[-1][0] + @record_fields[-1][1]
+            record_length = @record_fields[-1][:start] + @record_fields[-1][:length]
 
             convert record_length, from_filename, to_filename
         end
@@ -20,16 +20,17 @@ module CopybookUtils
                 start = field[:start]
                 len = field[:length]
                 converter = field[:conversion_method]
-                printf( "Strlen: %5d Start: %4d Len: %4d From: %s\n", str.length, start, len,
-                      str[start,len].each_byte.map { |b| sprintf(" %02X", b) }.join )
+                # printf( "Strlen: %5d Start: %4d Len: %4d From: %s\n", str.length, start, len,
+                #       str[start,len].each_byte.map { |b| sprintf(" %02X", b) }.join )
                 str[start,len] = converter.(str[start,len]) if !converter.nil?
-                printf( "Strlen: %5d Start: %4d Len: %4d   To: %s\n", str.length, start, len,
-                      converter.nil? ? str[start,len].each_byte.map { |b| sprintf(" %02X", b) }.join : str[start,len] )
+                # printf( "Strlen: %5d Start: %4d Len: %4d   To: %s\n", str.length, start, len,
+                #       converter.nil? ? str[start,len].each_byte.map { |b| sprintf(" %02X", b) }.join : str[start,len] )
             end
             str
         end
 
         def convert record_length, from_filename, to_filename
+            puts "Record length #{record_length}"
             File.open(from_filename) do |input|
                 File.open(to_filename, "w") do |output|
                     while str = input.read(record_length) do
@@ -53,8 +54,8 @@ module CopybookUtils
                     if node.name == 'item'
                         ignoring = node['picture'].nil? && node['numeric'].nil?
                         binary = !((node['usage'] || '') =~ /^comp/).nil?
-                        position = node['position'].to_i - 1 + offset
-                        @record_fields << { :start => position, :length => node['storage_length'].to_i,
+                        position = node['position'].to_i + offset - 1
+                        @record_fields << { :start => position, :length => node['storage-length'].to_i,
                                             :conversion_method => binary ? nil : @conversion_method } if !ignoring
                     end
                     flatten_xml level+1, offset+new_offset, node.children

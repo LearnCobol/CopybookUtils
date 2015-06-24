@@ -20,12 +20,12 @@ module CopybookUtils
 
         def to_ascii copybook_xml, from_filename, to_filename
             converter = CopybookUtils::ConvertFile.new
-            converter.convert method(:ebcdic2ascii), copybook_xml, from_filename, to_filename
+            converter.convert_file method(:ebcdic2ascii), copybook_xml, from_filename, to_filename
         end
 
         def to_ebcdic copybook_xml, from_filename, to_filename
             converter = CopybookUtils::ConvertFile.new
-            converter.convert method(:ascii2ebcdic), copybook_xml, from_filename, to_filename
+            converter.convert_file method(:ascii2ebcdic), copybook_xml, from_filename, to_filename
         end
     end
 end
