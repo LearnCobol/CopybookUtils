@@ -20,26 +20,25 @@ module CopybookUtils
                 start = field[:start]
                 len = field[:length]
                 converter = field[:conversion_method]
-                # printf( "Strlen: %5d Start: %4d Len: %4d From: %s\n", str.length, start, len,
-                #       str[start,len].each_byte.map { |b| sprintf(" %02X", b) }.join )
                 str[start,len] = converter.(str[start,len]) if !converter.nil?
-                # printf( "Strlen: %5d Start: %4d Len: %4d   To: %s\n", str.length, start, len,
-                #       converter.nil? ? str[start,len].each_byte.map { |b| sprintf(" %02X", b) }.join : str[start,len] )
             end
             str
         end
 
         def convert record_length, from_filename, to_filename
             puts "Record length #{record_length}"
+            record_count = 0
             File.open(from_filename) do |input|
                 File.open(to_filename, "w") do |output|
                     while str = input.read(record_length) do
                         puts "Input file not a multiple of #{record_length}" if str.length != record_length
                         len = output.write(convert_record(str))
+                        record_count += 1
                         puts "Write failed to output #{record_length} bytes, wrote #{len} bytes." if len != record_length
                     end
                 end
             end
+            puts "Converted #{record_count} records."
         end
 
         def flatten_xml level, offset, tree
@@ -48,7 +47,6 @@ module CopybookUtils
                 next if !node['redefines'].nil?
 
                 occurs = (node['occurs'] || "1").to_i - 1
-
                 (0..occurs).each do |i|
                     new_offset = node['storage-length'].to_i * i
                     if node.name == 'item'
