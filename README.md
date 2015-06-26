@@ -1,8 +1,9 @@
 # CopybookUtils
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/copybook_utils`. To experiment with that code, run `bin/console` for an interactive prompt.
+Commands to convert fixed-record files described by a copybook record layout
+from EBCDIC to ASCII, converting only the alpha-numeric fields.
 
-TODO: Delete this and the text above, and describe your gem
+The Gem can also be used to create scripts.
 
 ## Installation
 
@@ -20,15 +21,69 @@ Or install it yourself as:
 
     $ gem install copybook_utils
 
-## Usage
+## Command-line Usage
 
-TODO: Write usage instructions here
+A command ```convert_from_ebcdic``` is in the gem ```bin``` directory. It is
+recommended to copy ```convert_from_ebcdic``` from the bin directory to an
+appropriate place on your system (also copy ```convert_from_ebcdic.bat``` to
+the same place if on a Windows system).
+
+Run the command from a terminal or command prompt. The command usage is:
+
+```convert_from_ebcdic <Copybook file> <EBCDIC data file> <ASCII converted
+file>```
+
+This command parses the ```copybook file``` that contains the record layout for
+the ```EBCDIC data file```. The ```EBCDIC data file``` is read record by record
+converting the alpha-numeric fields from EBCDIC to ASCII. The output is written
+to ```ASCII converted file```.
+
+All binary fields (e.g.: comp-3, etc) are copied from the input records to the
+output records unchanged.
+
+## Gem Usage
+
+To use CopybookUtils:
+
+```require 'copybook_utils'```
+
+### Converting Copybooks to XML
+
+To convert a copybook to XML (wrapper around cb2xml Java jar from the copybook
+to XML project):
+
+```result = CopybookUtils.copybook_to_xml( copybook_filename )```
+
+Result contains:
+
+```
+result[:xml]            # XML string representing copybook
+result[:error_out]      # error info from conversion process
+result[:process_status] # the Process::Status from running java; non-zero is an error
+```
+
+The XML may be parsed with your favorite XML parser (e.g.: Nokogiri).
+
+### Converting Data Files between ASCII and EBCDIC
+
+```
+CopybookUtils.to_ascii( copybook_xml, data_file_input, data_file_output )
+CopybookUtils.to_ebcdic( copybook_xml, data_file_input, data_file_output )
+```
+
+These methods take the XML from ```CopybookUtils.copybook_to_xml``` and convert
+the ```data_file_input``` creating the ```data_file_output```. The input file
+must be a fixed-record file with the record layout described by the copybook.
+Note that fixed-record files do not have newlines at the end of each record.
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `bin/console` for an interactive prompt that will allow you to experiment.
+To install this gem onto your local machine, run `bundle exec rake install`. 
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release` to create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To release a new version, update the version number in `version.rb`, and then
+run `bundle exec rake release` to create a git tag for the version, push git
+commits and tags, and push the `.gem` file to
+[rubygems.org](https://rubygems.org).
 
 ## Contributing
 
